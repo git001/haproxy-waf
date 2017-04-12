@@ -1,0 +1,13 @@
+sudo: required
+
+language: c
+
+services:
+  - docker
+
+before_install:
+  - docker build -t me2digital/haproxy-waf .
+  - docker run --rm me2digital/haproxy-waf /bin/bash -c "haproxy -vv"
+
+script:
+  - haproxy -vv
