@@ -1,0 +1,70 @@
+global
+  # maxconn 4096
+  # nodaemon
+
+  log ${SYSLOG_ADDRESS} local1
+
+#  stats socket /var/lib/haproxy/run/haproxy.sock mode 600 level admin
+#  stats timeout 2m
+
+defaults
+  # maxconn 4096
+  # Add x-forwarded-for header.
+
+# the format is described at
+# http://cbonte.github.io/haproxy-dconv/1.5/configuration.html#8.2.4
+
+  timeout connect 5s
+  timeout client 30s
+  timeout server 30s
+  # Long timeout for WebSocket connections.
+  timeout tunnel 1h
+  default-server resolve-prefer ipv4 inter 5s
+
+resolvers mydns
+  nameserver dns1 ${DNS_SRV001}:53
+  nameserver dns2 ${DNS_SRV002}:53
+  resolve_retries       3
+  timeout retry         1s
+  hold valid           10s
+
+listen stats
+    bind :${STATS_PORT}
+    mode http
+    # Health check monitoring uri.
+    monitor-uri /healthz
+
+    # Add your custom health check monitoring failure condition here.
+    # monitor fail if <condition>
+    stats enable
+    stats hide-version
+    stats realm Haproxy\ Statistics
+    stats uri /
+    stats auth ${STATS_USER}:${STATS_PASSWORD}
+
+# public generic tcp forwarder
+# this works like a tcp forwarder as described here
+# http://cbonte.github.io/haproxy-dconv/1.5/configuration.html#4-mode
+#   TCP Mode
+
+frontend public_tcp
+  bind :${SERVICE_TCP_PORT}
+
+# the format is described at
+# http://cbonte.github.io/haproxy-dconv/1.5/configuration.html#8.2.4
+
+  option tcplog
+  log global
+
+  default_backend be_generic_tcp
+
+
+backend be_generic_tcp
+  mode tcp
+  balance source
+  hash-type consistent
+  timeout check 5s
+
+#  server "${SERVICE_NAME}" ${SERVICE_DEST_IP}:${SERVICE_DEST_PORT} check inter 5000ms
+  server_lines
+
