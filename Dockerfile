@@ -28,9 +28,9 @@ RUN set -x \
   && make -C /usr/src/lua linux test install \
   && cd /usr/src \
   && git clone http://git.haproxy.org/git/haproxy.git/ \
-  && curl -vo /usr/src/0001-BUG-MINOR-change-header-declared-function-to-static-.patch http://www.arpalert.org/0001-BUG-MINOR-change-header-declared-function-to-static-.patch \
-  && curl -vo /usr/src/0002-MINOR-Add-binary-encoding-request-sample-fetch.patch http://www.arpalert.org/0002-MINOR-Add-binary-encoding-request-sample-fetch.patch \
-  && curl -vo /usr/src/0003-MINOR-Add-ModSecurity-wrapper-as-contrib.patch http://www.arpalert.org/0003-MINOR-Add-ModSecurity-wrapper-as-contrib.patch \
+  && curl -sSo /usr/src/0001-BUG-MINOR-change-header-declared-function-to-static-.patch http://www.arpalert.org/0001-BUG-MINOR-change-header-declared-function-to-static-.patch \
+  && curl -sSo /usr/src/0002-MINOR-Add-binary-encoding-request-sample-fetch.patch http://www.arpalert.org/0002-MINOR-Add-binary-encoding-request-sample-fetch.patch \
+  && curl -sSo /usr/src/0003-MINOR-Add-ModSecurity-wrapper-as-contrib.patch http://www.arpalert.org/0003-MINOR-Add-ModSecurity-wrapper-as-contrib.patch \
   && patch -d /usr/src/haproxy -p 1 -i /usr/src/0001-BUG-MINOR-change-header-declared-function-to-static-.patch \
   && patch -d /usr/src/haproxy -p 1 -i /usr/src/0002-MINOR-Add-binary-encoding-request-sample-fetch.patch \
   && patch -d /usr/src/haproxy -p 1 -i /usr/src/0003-MINOR-Add-ModSecurity-wrapper-as-contrib.patch \
