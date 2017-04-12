@@ -18,7 +18,7 @@ ENV HAPROXY_MAJOR=1.8 \
 
 RUN set -x \
   && yum -y update \
-  && export buildDeps='pcre-devel openssl-devel gcc make zlib-devel readline-devel openssl patch ' \
+  && export buildDeps='pcre-devel openssl-devel gcc make zlib-devel readline-devel openssl patch git ' \
   && yum -y install pcre openssl-libs zlib bind-utils curl iproute tar strace ${buildDeps} \
   && curl -SL ${LUA_URL} -o lua-${LUA_VERSION}.tar.gz \
   && echo "${LUA_MD5} lua-${LUA_VERSION}.tar.gz" | md5sum -c \
