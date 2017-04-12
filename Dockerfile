@@ -28,9 +28,15 @@ RUN set -x \
   && make -C /usr/src/lua linux test install \
   && curl -SL "http://www.haproxy.org/download/${HAPROXY_MAJOR}/src/haproxy-${HAPROXY_VERSION}.tar.gz" -o haproxy.tar.gz \
   && echo "${HAPROXY_MD5}  haproxy.tar.gz" | md5sum -c \
+  && curl -vo /usr/src/0001-BUG-MINOR-change-header-declared-function-to-static-.patch http://www.arpalert.org/0001-BUG-MINOR-change-header-declared-function-to-static-.patch \
+  && curl -vo /usr/src/0002-MINOR-Add-binary-encoding-request-sample-fetch.patch http://www.arpalert.org/0002-MINOR-Add-binary-encoding-request-sample-fetch.patch \
+  && curl -vo /usr/src/0003-MINOR-Add-ModSecurity-wrapper-as-contrib.patch http://www.arpalert.org/0003-MINOR-Add-ModSecurity-wrapper-as-contrib.patch \
   && mkdir -p /usr/src/haproxy \
   && tar -xzf haproxy.tar.gz -C /usr/src/haproxy --strip-components=1 \
   && rm haproxy.tar.gz \
+  && patch -d /usr/src/haproxy -p 1 /usr/src/0001-BUG-MINOR-change-header-declared-function-to-static-.patch \
+  && patch -d /usr/src/haproxy -p 1 /usr/src/0002-MINOR-Add-binary-encoding-request-sample-fetch.patch \
+  && patch -d /usr/src/haproxy -p 1 /usr/src/0003-MINOR-Add-ModSecurity-wrapper-as-contrib.patch \
   && make -C /usr/src/haproxy \
 		TARGET=linux2628 \
 		USE_PCRE=1 \
