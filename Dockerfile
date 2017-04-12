@@ -3,8 +3,8 @@ FROM centos:latest
 # take a look at http://www.lua.org/download.html for
 # newer version
 
-ENV HAPROXY_MAJOR=1.7 \
-    HAPROXY_VERSION=1.7.5 \
+ENV HAPROXY_MAJOR=1.8 \
+    HAPROXY_VERSION=1.8.x \
     HAPROXY_MD5=ed84c80cb97852d2aa3161ed16c48a1c \
     LUA_VERSION=5.3.4 \
     LUA_URL=http://www.lua.org/ftp/lua-5.3.4.tar.gz \
@@ -26,17 +26,14 @@ RUN set -x \
   && tar -xzf lua-${LUA_VERSION}.tar.gz -C /usr/src/lua --strip-components=1 \
   && rm lua-${LUA_VERSION}.tar.gz \
   && make -C /usr/src/lua linux test install \
-  && curl -SL "http://www.haproxy.org/download/${HAPROXY_MAJOR}/src/haproxy-${HAPROXY_VERSION}.tar.gz" -o haproxy.tar.gz \
-  && echo "${HAPROXY_MD5}  haproxy.tar.gz" | md5sum -c \
+  && cd /usr/src \
+  && git clone http://git.haproxy.org/git/haproxy.git/ \
   && curl -vo /usr/src/0001-BUG-MINOR-change-header-declared-function-to-static-.patch http://www.arpalert.org/0001-BUG-MINOR-change-header-declared-function-to-static-.patch \
   && curl -vo /usr/src/0002-MINOR-Add-binary-encoding-request-sample-fetch.patch http://www.arpalert.org/0002-MINOR-Add-binary-encoding-request-sample-fetch.patch \
   && curl -vo /usr/src/0003-MINOR-Add-ModSecurity-wrapper-as-contrib.patch http://www.arpalert.org/0003-MINOR-Add-ModSecurity-wrapper-as-contrib.patch \
-  && mkdir -p /usr/src/haproxy \
-  && tar -xzf haproxy.tar.gz -C /usr/src/haproxy --strip-components=1 \
-  && rm haproxy.tar.gz \
-  && patch -d /usr/src/haproxy -p 1 /usr/src/0001-BUG-MINOR-change-header-declared-function-to-static-.patch \
-  && patch -d /usr/src/haproxy -p 1 /usr/src/0002-MINOR-Add-binary-encoding-request-sample-fetch.patch \
-  && patch -d /usr/src/haproxy -p 1 /usr/src/0003-MINOR-Add-ModSecurity-wrapper-as-contrib.patch \
+  && patch -d /usr/src/haproxy -p 1 -i /usr/src/0001-BUG-MINOR-change-header-declared-function-to-static-.patch \
+  && patch -d /usr/src/haproxy -p 1 -i /usr/src/0002-MINOR-Add-binary-encoding-request-sample-fetch.patch \
+  && patch -d /usr/src/haproxy -p 1 -i /usr/src/0003-MINOR-Add-ModSecurity-wrapper-as-contrib.patch \
   && make -C /usr/src/haproxy \
 		TARGET=linux2628 \
 		USE_PCRE=1 \
@@ -53,7 +50,7 @@ RUN set -x \
   && mkdir -p /usr/local/etc/haproxy/ssl/cas \
   && mkdir -p /usr/local/etc/haproxy/ssl/crts \
   && cp -R /usr/src/haproxy/examples/errorfiles /usr/local/etc/haproxy/errors \
-  && rm -rf /usr/src/haproxy /usr/src/lua \
+  && rm -rf /usr/src/haproxy /usr/src/lua /usr/src/000* \
   && yum -y autoremove $buildDeps \
   && yum -y clean all
 
