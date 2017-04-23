@@ -4,7 +4,7 @@
 
 The main work is based on Thierry Fournier patches and of course the SPOE feature of haproxy.
 
-You can see the start and following dicsussion on the haproxy mailing list.
+You can see the start and following discussion on the haproxy mailing list.
 https://www.mail-archive.com/haproxy@formilux.org/msg25681.html
 
 You are able with this patches to use haproxy as SSL terminator and WAF (Web Application Firewall) based on mod_security.
