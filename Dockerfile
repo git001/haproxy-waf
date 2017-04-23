@@ -28,6 +28,8 @@ RUN set -x \
   && curl -sSL ${MODSEC_CRS_URL} -o ${CRS_FILE} \
   && echo "${LUA_MD5} lua-${LUA_VERSION}.tar.gz" | md5sum -c \
   && echo "${MODSEC_SHA256} modsecurity-2.9.1.tar.gz" | sha256sum -c \
+  && yum -y autoremove $buildDeps \
+  && exit \
   && mkdir -p /usr/src/lua /data \
   && tar -xzf lua-${LUA_VERSION}.tar.gz -C /usr/src/lua --strip-components=1 \
   && tar -xzf  ${CRS_FILE} -C /data \
@@ -72,7 +74,7 @@ RUN set -x \
   && mkdir -p /usr/local/etc/haproxy/ssl/cas \
   && mkdir -p /usr/local/etc/haproxy/ssl/crts \
   && cp -R /usr/src/haproxy/examples/errorfiles /usr/local/etc/haproxy/errors \
-  && rm -rf /usr/src/haproxy /usr/src/lua /root/*tar.gz \
+  && rm -rf /usr/src/haproxy /usr/src/lua /*tar.gz \
   && yum -y autoremove $buildDeps \
   && yum -y clean all
 
