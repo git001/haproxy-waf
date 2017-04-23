@@ -13,6 +13,8 @@ ENV HAPROXY_MAJOR=1.8 \
 # RUN cat /etc/redhat-release
 # RUN yum provides "*lib*/libc.a"
 
+COPY containerfiles /
+
 RUN set -x \
   && yum -y update \
   && export buildDeps='pcre-devel openssl-devel gcc make zlib-devel readline-devel openssl patch git ' \
@@ -51,8 +53,6 @@ RUN set -x \
   && yum -y clean all
 
 #         && openssl dhparam -out /usr/local/etc/haproxy/ssl/dh-param_4096 4096 \
-
-COPY containerfiles /
 
 RUN chmod 555 /container-entrypoint.sh
 
