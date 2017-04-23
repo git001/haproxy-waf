@@ -13,9 +13,6 @@ ENV HAPROXY_MAJOR=1.8 \
 # RUN cat /etc/redhat-release
 # RUN yum provides "*lib*/libc.a"
 
-# see http://git.haproxy.org/?p=haproxy-1.6.git;a=blob_plain;f=Makefile;hb=HEAD
-# for some helpful navigation of the possible "make" arguments
-
 RUN set -x \
   && yum -y update \
   && export buildDeps='pcre-devel openssl-devel gcc make zlib-devel readline-devel openssl patch git ' \
@@ -28,12 +25,11 @@ RUN set -x \
   && make -C /usr/src/lua linux test install \
   && cd /usr/src \
   && git clone http://git.haproxy.org/git/haproxy.git/ \
-  && curl -sSo /usr/src/0001-BUG-MINOR-change-header-declared-function-to-static-.patch http://www.arpalert.org/0001-BUG-MINOR-change-header-declared-function-to-static-.patch \
-  && curl -sSo /usr/src/0002-MINOR-Add-binary-encoding-request-sample-fetch.patch http://www.arpalert.org/0002-MINOR-Add-binary-encoding-request-sample-fetch.patch \
-  && curl -sSo /usr/src/0003-MINOR-Add-ModSecurity-wrapper-as-contrib.patch http://www.arpalert.org/0003-MINOR-Add-ModSecurity-wrapper-as-contrib.patch \
-  && patch -d /usr/src/haproxy -p 1 -i /usr/src/0001-BUG-MINOR-change-header-declared-function-to-static-.patch \
-  && patch -d /usr/src/haproxy -p 1 -i /usr/src/0002-MINOR-Add-binary-encoding-request-sample-fetch.patch \
-  && patch -d /usr/src/haproxy -p 1 -i /usr/src/0003-MINOR-Add-ModSecurity-wrapper-as-contrib.patch \
+  && patch -d /usr/src/haproxy -p 1 -i /patches/0002-BUG-MINOR-change-header-declared-function-to-static-.patch \
+  && patch -d /usr/src/haproxy -p 1 -i /patches/0003-REORG-spoe-move-spoe_encode_varint-spoe_decode_varin.patch \
+  && patch -d /usr/src/haproxy -p 1 -i /patches/0004-MINOR-Add-binary-encoding-request-header-sample-fetc.patch \
+  && patch -d /usr/src/haproxy -p 1 -i /patches/0005-MINOR-proto-http-Add-sample-fetch-wich-returns-all-H.patch \
+  && patch -d /usr/src/haproxy -p 1 -i /patches/0006-MINOR-Add-ModSecurity-wrapper-as-contrib.patch \
   && make -C /usr/src/haproxy \
 		TARGET=linux2628 \
 		USE_PCRE=1 \
