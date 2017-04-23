@@ -84,3 +84,22 @@ using CONFIG_FILE   :/tmp/haproxy.conf
 
 TODO
 
+In the container
+
+```
+/usr/local/bin/modsecurity -f /data/owasp-modsecurity-crs-3.0.0/crs-setup.conf.example
+```
+
+Output
+
+```
+1492953204.290643 [00] ModSecurity for nginx (STABLE)/2.9.1 (http://www.modsecurity.org/) configured.
+1492953204.290705 [00] ModSecurity: APR compiled version="1.4.8"; loaded version="1.4.8"
+1492953204.290730 [00] ModSecurity: PCRE compiled version="8.32 "; loaded version="8.32 2012-11-30"
+1492953204.290739 [00] ModSecurity: YAJL compiled version="2.0.4"
+1492953204.290743 [00] ModSecurity: LIBXML compiled version="2.9.1"
+1492953204.290747 [00] ModSecurity: Status engine is currently disabled, enable it by set SecStatusEngine to On.
+1492953209.298799 [03] 0 clients connected
+1492953209.298937 [04] 0 clients connected
+...
+```
