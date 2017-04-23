@@ -19,17 +19,16 @@ ENV HAPROXY_MAJOR=1.8 \
 
 COPY containerfiles /
 
+# cyrus-sasl must be added to not remove systemd 8-O strange.
+
 RUN set -x \
-  && yum -y update \
-  && export buildDeps='pcre-devel openssl-devel gcc make zlib-devel readline-devel openssl patch git apr-devel apr-util-devel gcc make libevent-devel libxml2-devel libcurl-devel httpd-devel pcre-devel yajl-devel' \
-  && yum -y install pcre openssl-libs zlib bind-utils curl iproute tar strace libevent libxml2 libcurl apr apr-util ${buildDeps} \
+  && export buildDeps='pcre-devel openssl-devel gcc make zlib-devel readline-devel openssl patch git apr-devel apr-util-devel libevent-devel libxml2-devel libcurl-devel httpd-devel pcre-devel yajl-devel' \
+  && yum -y install pcre openssl-libs zlib bind-utils curl iproute tar strace libevent libxml2 libcurl apr apr-util cyrus-sasl ${buildDeps} \
   && curl -sSL ${LUA_URL} -o lua-${LUA_VERSION}.tar.gz \
   && curl -sSL ${MODSEC_URL} -o modsecurity-2.9.1.tar.gz \
   && curl -sSL ${MODSEC_CRS_URL} -o ${CRS_FILE} \
   && echo "${LUA_MD5} lua-${LUA_VERSION}.tar.gz" | md5sum -c \
   && echo "${MODSEC_SHA256} modsecurity-2.9.1.tar.gz" | sha256sum -c \
-  && yum -y autoremove $buildDeps \
-  && exit \
   && mkdir -p /usr/src/lua /data \
   && tar -xzf lua-${LUA_VERSION}.tar.gz -C /usr/src/lua --strip-components=1 \
   && tar -xzf  ${CRS_FILE} -C /data \
