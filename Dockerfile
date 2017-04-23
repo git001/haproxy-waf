@@ -20,8 +20,6 @@ ENV HAPROXY_MAJOR=1.8 \
 COPY containerfiles /
 
 RUN set -x \
-  && pwd \
-  && exit \
   && yum -y update \
   && export buildDeps='pcre-devel openssl-devel gcc make zlib-devel readline-devel openssl patch git apr-devel apr-util-devel gcc make libevent-devel libxml2-devel libcurl-devel httpd-devel pcre-devel yajl-devel' \
   && yum -y install pcre openssl-libs zlib bind-utils curl iproute tar strace libevent libxml2 libcurl apr apr-util ${buildDeps} \
@@ -67,7 +65,7 @@ RUN set -x \
 	all \
 	install-bin \
   && cd /usr/src/haproxy/contrib/modsecurity \
-  && make MODSEC_INC=/root/modsecurity-2.9.1/INSTALL/include MODSEC_LIB=/root/modsecurity-2.9.1/INSTALL/lib APACHE2_INC=/usr/include/httpd APR_INC=/usr/include/apr-1 \
+  && make MODSEC_INC=/modsecurity-2.9.1/INSTALL/include MODSEC_LIB=/modsecurity-2.9.1/INSTALL/lib APACHE2_INC=/usr/include/httpd APR_INC=/usr/include/apr-1 \
   && make install \
   && mkdir -p /usr/local/etc/haproxy \
   && mkdir -p /usr/local/etc/haproxy/ssl \
