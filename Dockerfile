@@ -25,7 +25,7 @@ RUN set -x \
   && yum -y install pcre openssl-libs zlib bind-utils curl iproute tar strace libevent libxml2 libcurl apr apr-util ${buildDeps} \
   && curl -sSL ${LUA_URL} -o lua-${LUA_VERSION}.tar.gz \
   && curl -sSL ${MODSEC_URL} -o modsecurity-2.9.1.tar.gz \
-  && curl -sSL ${MODSEC_CRS_URL} -p ${CRS_FILE} \
+  && curl -sSL ${MODSEC_CRS_URL} -o ${CRS_FILE} \
   && echo "${LUA_MD5} lua-${LUA_VERSION}.tar.gz" | md5sum -c \
   && echo "${MODSEC_SHA256} modsecurity-2.9.1.tar.gz" | sha256sum -c \
   && mkdir -p /usr/src/lua /data \
