@@ -20,6 +20,8 @@ ENV HAPROXY_MAJOR=1.8 \
 COPY containerfiles /
 
 RUN set -x \
+  && pwd \
+  && exit \
   && yum -y update \
   && export buildDeps='pcre-devel openssl-devel gcc make zlib-devel readline-devel openssl patch git apr-devel apr-util-devel gcc make libevent-devel libxml2-devel libcurl-devel httpd-devel pcre-devel yajl-devel' \
   && yum -y install pcre openssl-libs zlib bind-utils curl iproute tar strace libevent libxml2 libcurl apr apr-util ${buildDeps} \
