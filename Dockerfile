@@ -54,6 +54,10 @@ RUN set -x \
 
 #         && openssl dhparam -out /usr/local/etc/haproxy/ssl/dh-param_4096 4096 \
 
+# I know it's not very efficient to copy this files twice but 
+# I accept this small inefficient
+COPY containerfiles /
+
 RUN chmod 555 /container-entrypoint.sh
 
 EXPOSE 13443
