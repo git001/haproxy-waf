@@ -8,7 +8,9 @@ ENV HAPROXY_MAJOR=1.8 \
     HAPROXY_MD5=ed84c80cb97852d2aa3161ed16c48a1c \
     LUA_VERSION=5.3.4 \
     LUA_URL=http://www.lua.org/ftp/lua-5.3.4.tar.gz \
-    LUA_MD5=53a9c68bcc0eda58bdc2095ad5cdfc63
+    LUA_MD5=53a9c68bcc0eda58bdc2095ad5cdfc63 \
+    MODSEC_URL=https://www.modsecurity.org/tarball/2.9.1/modsecurity-2.9.1.tar.gz \
+    MODSEC_SHA256=958cc5a7a7430f93fac0fd6f8b9aa92fc1801efce0cda797d6029d44080a9b24
 
 # RUN cat /etc/redhat-release
 # RUN yum provides "*lib*/libc.a"
@@ -17,14 +19,29 @@ COPY containerfiles /
 
 RUN set -x \
   && yum -y update \
-  && export buildDeps='pcre-devel openssl-devel gcc make zlib-devel readline-devel openssl patch git ' \
-  && yum -y install pcre openssl-libs zlib bind-utils curl iproute tar strace ${buildDeps} \
+  && export buildDeps='pcre-devel openssl-devel gcc make zlib-devel readline-devel openssl patch git apr-devel apr-util-devel gcc make libevent-devel libxml2-devel libcurl-devel httpd-devel pcre-devel yajl-devel' \
+  && yum -y install pcre openssl-libs zlib bind-utils curl iproute tar strace libevent libxml2 libcurl apr apr-util ${buildDeps} \
   && curl -SL ${LUA_URL} -o lua-${LUA_VERSION}.tar.gz \
+  && curl -SL ${MODSEC_URL} -o modsecurity-2.9.1.tar.gz \
   && echo "${LUA_MD5} lua-${LUA_VERSION}.tar.gz" | md5sum -c \
+  && echo "${MODSEC_SHA256} modsecurity-2.9.1.tar.gz" | sha256sum -c \
   && mkdir -p /usr/src/lua \
   && tar -xzf lua-${LUA_VERSION}.tar.gz -C /usr/src/lua --strip-components=1 \
   && rm lua-${LUA_VERSION}.tar.gz \
   && make -C /usr/src/lua linux test install \
+  && tar xfvz modsecurity-2.9.1.tar.gz \
+  && cd modsecurity-2.9.1 \
+  && ./configure \
+      --prefix=$PWD/INSTALL \
+      --disable-apache2-module \
+      --enable-standalone-module \
+      --enable-pcre-study \
+      --without-lua \
+      --enable-pcre-jit \
+  && make -C standalone install \
+  && mkdir -p $PWD/INSTALL/include \
+  && cp standalone/*.h $PWD/INSTALL/include \
+  && cp apache2/*.h $PWD/INSTALL/include \
   && cd /usr/src \
   && git clone http://git.haproxy.org/git/haproxy.git/ \
   && patch -d /usr/src/haproxy -p 1 -i /patches/0002-BUG-MINOR-change-header-declared-function-to-static-.patch \
@@ -43,6 +60,8 @@ RUN set -x \
         USE_LUA=1 \
 		all \
 		install-bin \
+  && cd /usr/src/haproxy /contrib/modsecurity \
+  && make MODSEC_INC=/root/modsecurity-2.9.1/INSTALL/include MODSEC_LIB=/root/modsecurity-2.9.1/INSTALL/lib APACHE2_INC=/usr/include/httpd APR_INC=/usr/include/apr-1 \
   && mkdir -p /usr/local/etc/haproxy \
   && mkdir -p /usr/local/etc/haproxy/ssl \
   && mkdir -p /usr/local/etc/haproxy/ssl/cas \
