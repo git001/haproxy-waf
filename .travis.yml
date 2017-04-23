@@ -7,7 +7,6 @@ services:
 
 before_install:
   - docker build -t me2digital/haproxy-waf .
-  - docker run --entrypoint /usr/local/sbin/haproxy --rm me2digital/haproxy-waf -vv
 
 script:
-  - /usr/local/sbin/haproxy -vv
+  - docker run --entrypoint /usr/local/sbin/haproxy --rm me2digital/haproxy-waf -vv
