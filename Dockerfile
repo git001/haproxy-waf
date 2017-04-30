@@ -17,7 +17,11 @@ ENV HAPROXY_MAJOR=1.8 \
 # RUN cat /etc/redhat-release
 # RUN yum provides "*lib*/libc.a"
 
-COPY containerfiles /
+# due to the fact that the patches are now part of
+# haproxy, I don't need to copy the patches into the
+# build image
+
+# COPY containerfiles /
 
 # cyrus-sasl must be added to not remove systemd 8-O strange.
 
@@ -49,11 +53,6 @@ RUN set -x \
   && cp apache2/*.h $PWD/INSTALL/include \
   && cd /usr/src \
   && git clone http://git.haproxy.org/git/haproxy.git/ \
-  && patch -d /usr/src/haproxy -p 1 -i /patches/0002-BUG-MINOR-change-header-declared-function-to-static-.patch \
-  && patch -d /usr/src/haproxy -p 1 -i /patches/0003-REORG-spoe-move-spoe_encode_varint-spoe_decode_varin.patch \
-  && patch -d /usr/src/haproxy -p 1 -i /patches/0004-MINOR-Add-binary-encoding-request-header-sample-fetc.patch \
-  && patch -d /usr/src/haproxy -p 1 -i /patches/0005-MINOR-proto-http-Add-sample-fetch-wich-returns-all-H.patch \
-  && patch -d /usr/src/haproxy -p 1 -i /patches/0006-MINOR-Add-ModSecurity-wrapper-as-contrib.patch \
   && make -C /usr/src/haproxy \
 	TARGET=linux2628 \
 	USE_PCRE=1 \
@@ -66,7 +65,10 @@ RUN set -x \
 	all \
 	install-bin \
   && cd /usr/src/haproxy/contrib/modsecurity \
-  && make MODSEC_INC=/modsecurity-2.9.1/INSTALL/include MODSEC_LIB=/modsecurity-2.9.1/INSTALL/lib APACHE2_INC=/usr/include/httpd APR_INC=/usr/include/apr-1 \
+  && make MODSEC_INC=/modsecurity-2.9.1/INSTALL/include \
+      MODSEC_LIB=/modsecurity-2.9.1/INSTALL/lib \
+      APACHE2_INC=/usr/include/httpd \
+      APR_INC=/usr/include/apr-1 \
   && make install \
   && mkdir -p /usr/local/etc/haproxy \
   && mkdir -p /usr/local/etc/haproxy/ssl \
