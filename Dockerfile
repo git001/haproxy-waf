@@ -21,7 +21,8 @@ ENV HAPROXY_MAJOR=1.8 \
 # haproxy, I don't need to copy the patches into the
 # build image
 
-# COPY containerfiles /
+# to be able to add the patches in containerfiles dir
+COPY containerfiles /
 
 # cyrus-sasl must be added to not remove systemd 8-O strange.
 
@@ -53,6 +54,7 @@ RUN set -x \
   && cp apache2/*.h $PWD/INSTALL/include \
   && cd /usr/src \
   && git clone http://git.haproxy.org/git/haproxy.git/ \
+  && patch -d /usr/src/haproxy -p 1 -i /fix_get0privatekey_compat.diff \
   && make -C /usr/src/haproxy \
 	TARGET=linux2628 \
 	USE_PCRE=1 \
