@@ -1,0 +1,60 @@
+diff --git a/include/proto/openssl-compat.h b/include/proto/openssl-compat.h
+index 9b67109..ea92072 100644
+--- a/include/proto/openssl-compat.h
++++ b/include/proto/openssl-compat.h
+@@ -89,19 +89,6 @@ static inline int SSL_SESSION_set1_id_context(SSL_SESSION *s, const unsigned cha
+ }
+ #endif
+ 
+-#if (OPENSSL_VERSION_NUMBER < 0x10002000L) || defined(LIBRESSL_VERSION_NUMBER)
+-/*
+- * Functions introduced in OpenSSL 1.0.2 and not yet present in LibreSSL
+- */
+-EVP_PKEY *SSL_CTX_get0_privatekey(const SSL_CTX *ctx)
+-{
+-	if (ctx->cert != NULL)
+-		return ctx->cert->key->privatekey;
+-	else
+-		return NULL;
+-}
+-#endif
+-
+ #if (OPENSSL_VERSION_NUMBER < 0x1010000fL) || defined(LIBRESSL_VERSION_NUMBER)
+ /*
+  * Functions introduced in OpenSSL 1.1.0 and not yet present in LibreSSL
+diff --git a/src/ssl_sock.c b/src/ssl_sock.c
+index 8d38f28..7b1a0c9 100644
+--- a/src/ssl_sock.c
++++ b/src/ssl_sock.c
+@@ -1580,6 +1580,7 @@ ssl_sock_do_create_cert(const char *servername, struct bind_conf *bind_conf, SSL
+ 	SSL_CTX      *ssl_ctx = NULL;
+ 	X509         *newcrt  = NULL;
+ 	EVP_PKEY     *pkey    = NULL;
++	SSL          *tmp_ssl = NULL;
+ 	X509_NAME    *name;
+ 	const EVP_MD *digest;
+ 	X509V3_CTX    ctx;
+@@ -1587,7 +1588,14 @@ ssl_sock_do_create_cert(const char *servername, struct bind_conf *bind_conf, SSL
+ 	int 	      key_type;
+ 
+ 	/* Get the private key of the default certificate and use it */
+-	if (!(pkey = SSL_CTX_get0_privatekey(bind_conf->default_ctx)))
++#if (OPENSSL_VERSION_NUMBER >= 0x10002000L && !defined LIBRESSL_VERSION_NUMBER)
++	pkey = SSL_CTX_get0_privatekey(bind_conf->default_ctx);
++#else
++	tmp_ssl = SSL_new(bind_conf->default_ctx);
++	if (tmp_ssl)
++		pkey = SSL_get_privatekey(tmp_ssl);
++#endif
++	if (!pkey)
+ 		goto mkcert_error;
+ 
+ 	/* Create the certificate */
+@@ -1704,6 +1712,7 @@ ssl_sock_do_create_cert(const char *servername, struct bind_conf *bind_conf, SSL
+ 	return ssl_ctx;
+ 
+  mkcert_error:
++	if (tmp_ssl) SSL_free(tmp_ssl);
+ 	if (ssl_ctx) SSL_CTX_free(ssl_ctx);
+ 	if (newcrt)  X509_free(newcrt);
+ 	return NULL;
